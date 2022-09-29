@@ -1,41 +1,46 @@
 #!/usr/bin/python3
-"""Minimal flask app"""
+"""Start web application with two routings
+"""
 
 from flask import Flask
 app = Flask(__name__)
 
 
-@app.route('/', strict_slashes=False)
-def index():
-    """Route index"""
-    return "Hello HBNB!"
+@app.route('/')
+def hello():
+    """Return string when route queried
+    """
+    return 'Hello HBNB!'
 
 
-@app.route('/hbnb', strict_slashes=False)
+@app.route('/hbnb')
 def hbnb():
-    """Route /hbnb"""
-    return "HBNB"
+    """Return string when route queried
+    """
+    return 'HBNB'
 
 
-@app.route('/c/<text>', strict_slashes=False)
-def c(text):
-    """Route /c"""
-    return "C %s" % text.replace("_", " ")
+@app.route('/c/<text>')
+def c_is_fun(text):
+    """Return reformatted text
+    """
+    return 'C ' + text.replace('_', ' ')
 
 
-@app.route('/python',
-           defaults={"text": "is cool"}, strict_slashes=False)
-@app.route('/python/<text>', strict_slashes=False)
-def python(text):
-    """Route /python"""
-    return "Python %s" % text.replace("_", " ")
+@app.route('/python/')
+@app.route('/python/<text>')
+def python_with_text(text='is cool'):
+    """Reformat text based on optional variable
+    """
+    return 'Python ' + text.replace('_', ' ')
 
 
-@app.route('/number/<int:n>', strict_slashes=False)
-def number(n):
-    """Route /number"""
-    return "%d is a number" % n
-
+@app.route('/number/<int:n>')
+def number(n=None):
+    """Allow request if path variable is a valid integer
+    """
+    return str(n) + ' is a number'
 
 if __name__ == '__main__':
-    app.run("0.0.0.0", 5000)
+    app.url_map.strict_slashes = False
+    app.run(host='0.0.0.0', port=5000)

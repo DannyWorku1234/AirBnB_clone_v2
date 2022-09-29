@@ -1,36 +1,30 @@
 #!/usr/bin/python3
-"""Minimal flask app"""
+"""Start web application with two routings
+"""
 
-from flask import Flask, render_template
 from models import storage
-from models import State
+from models.state import State
+from flask import Flask, render_template
 app = Flask(__name__)
 
 
+@app.route('/states')
+@app.route('/states/<id>')
+def states_list(id=None):
+    """Render template with states
+    """
+    path = '9-states.html'
+    states = storage.all(State)
+    return render_template(path, states=states, id=id)
+
+
 @app.teardown_appcontext
-def closedb(foo):
-    """Closes db session"""
+def app_teardown(arg=None):
+    """Clean-up session
+    """
     storage.close()
 
 
-@app.route('/states', strict_slashes=False, defaults={'id': None})
-@app.route('/states/<id>', strict_slashes=False)
-def states(id):
-    """Route /states"""
-    state = states = None
-    if not id:
-        states = list(storage.all(State).values())
-    else:
-        states = storage.all(State)
-        key = "State." + id
-        if key in states:
-            state = states[key]
-        else:
-            state = None
-        states = []
-    return render_template('9-states.html', **locals())
-
-
 if __name__ == '__main__':
-    storage.reload()
-    app.run("0.0.0.0", 5000)
+    app.url_map.strict_slashes = False
+    app.run(host='0.0.0.0', port=5000)

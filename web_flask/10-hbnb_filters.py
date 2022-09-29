@@ -1,26 +1,31 @@
 #!/usr/bin/python3
-"""Minimal flask app"""
+"""Start web application with two routings
+"""
 
-from flask import Flask, render_template
 from models import storage
-from models import State, Amenity
+from models.state import State
+from models.amenity import Amenity
+from flask import Flask, render_template
 app = Flask(__name__)
 
 
+@app.route('/hbnb_filters')
+def hbnb_filters():
+    """Render template with states
+    """
+    path = '10-hbnb_filters.html'
+    states = storage.all(State)
+    amenities = storage.all(Amenity)
+    return render_template(path, states=states, amenities=amenities)
+
+
 @app.teardown_appcontext
-def closedb(foo):
-    """Closes db session"""
+def app_teardown(arg=None):
+    """Clean-up session
+    """
     storage.close()
 
 
-@app.route('/hbnb_filters', strict_slashes=False)
-def hbnb_filters():
-    """Route /hbnb_filters"""
-    states = storage.all(State)
-    amenities = storage.all(Amenity)
-    return render_template('10-hbnb_filters.html', **locals())
-
-
 if __name__ == '__main__':
-    storage.reload()
-    app.run("0.0.0.0", 5000)
+    app.url_map.strict_slashes = False
+    app.run(host='0.0.0.0', port=5000)
